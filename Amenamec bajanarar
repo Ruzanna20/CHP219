@@ -1,23 +1,43 @@
-#include <iostream> 
-using namespace std; 
- 
-int gcd(int a, int b) { 
-    while (b != 0) { 
-        int mnacord= a % b; 
-        a = b; 
-        b = mnacord; 
-    } 
-    return a; 
-} 
- 
-int main() { 
-    int num1, num2; 
- 
-    cout << "Enter two integers: "; 
-    cin >> num1 >> num2; 
- 
-    int result = gcd(num1, num2); 
-    cout << "The GCD of " << num1 << " and " << num2 << " is: " << result << endl; 
- 
-    return 0; 
+#include <iostream>
+using namespace std;
+
+class GCD {
+private:
+    int num1, num2;  
+
+public:
+    GCD(int a, int b) {
+        num1 = a;
+        num2 = b;
+    }
+
+    //funkcia amenamec bajanarary gtnelu
+    int calculateGCD() {
+        int a = num1, b = num2;
+        while (b != 0) {
+            int temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+    
+    //ardyunqy cucadrelu metod
+    void displayResult() {
+        cout << "GCD of " << num1 << " and " << num2 << " is: " << calculateGCD() << endl;
+    }
+};
+
+int main() {
+    int num1, num2;
+
+    cout << "Enter two numbers: ";
+    cin >> num1 >> num2;
+
+
+    GCD gcdObject(num1, num2);
+
+    gcdObject.displayResult();
+
+    return 0;
 }
