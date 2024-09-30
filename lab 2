@@ -2,27 +2,46 @@
 using namespace std;
 
 
-int gcd(int a, int b) {
-    while (b != 0) {
-        int temp = b;
-        b = a % b;
-        a = temp;
+class NumberOperations {
+private:
+    int num1;
+    int num2;
+
+    //GCD hashvelu private metod
+    int gcd(int a, int b) {
+        if (b == 0)
+            return a;
+        return gcd(b, a % b);
     }
-    return a;
-}
 
+public:
+    NumberOperations(int n1, int n2) {
+        num1 = n1;
+        num2 = n2;
+    }
 
-int lcm(int a, int b) {
-    return (a * b) / gcd(a, b);
-}
+    //LCM hashvelu metod
+    int lcm() {
+        int absNum1 = abs(num1);
+        int absNum2 = abs(num2);
+        return (absNum1 * absNum2) / gcd(absNum1, absNum2);
+    }
+
+    //ardyunqy cucadrelu metod
+    void displayLCM() {
+        cout << "LCM of " << num1 << " and " << num2 << " is: " << lcm() << endl;
+    }
+};
 
 int main() {
     int num1, num2;
     
     cout << "Enter two numbers: ";
     cin >> num1 >> num2;
-
-    cout << "The LCM of " << num1 << " and " << num2 << " is " << lcm(num1, num2) << endl;
-
+    
+    NumberOperations operation(num1, num2);
+    
+    operation.displayLCM();
+    
     return 0;
 }
