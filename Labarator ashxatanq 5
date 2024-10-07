@@ -1,0 +1,74 @@
+ #include <iostream>
+#include <vector>
+#include <sstream> 
+
+class Matrix {
+private:
+    std::vector<int> data; 
+    int rows, cols; 
+
+public:
+    Matrix(int r, int c) : rows(r), cols(c) {
+        data.resize(rows * cols, 0); 
+    }
+    void setValue(int r, int c, int value) {
+        if (r >= 0 && r < rows && c >= 0 && c < cols) {
+            data[r * cols + c] = value; 
+        } else {
+            std::cout << "Index out of bounds!" << std::endl;
+        }
+    }
+
+    int getValue(int r, int c) {
+        if (r >= 0 && r < rows && c >= 0 && c < cols) {
+            return data[r * cols + c]; 
+        } else {
+            std::cout << "Index out of bounds!" << std::endl;
+            return -1; 
+        }
+    }
+    void display() {
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                std::cout << getValue(r, c) << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
+
+
+    std::string toString() {
+        std::ostringstream oss; 
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                oss << getValue(r, c) << " "; 
+            }
+        }
+        return oss.str(); 
+    }
+};
+
+int main() {
+    int rows, cols;
+    std::cout << "Enter number of rows: ";
+    std::cin >> rows;
+    std::cout << "Enter number of columns: ";
+    std::cin >> cols;
+
+    Matrix matrix(rows, cols);
+
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
+            int value;
+            std::cout << "Enter value for position (" << r << "," << c << "): ";
+            std::cin >> value;
+            matrix.setValue(r, c, value);
+        }
+    }
+    std::cout << "The matrix after updates is:" << std::endl;
+    matrix.display();
+
+    std::string matrixString = matrix.toString();
+    std::cout << "Matrix as string: " << matrixString << std::endl; 
+    return 0;
+}
