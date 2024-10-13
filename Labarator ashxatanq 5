@@ -1,74 +1,69 @@
- #include <iostream>
+#include <iostream>
 #include <vector>
-#include <sstream> 
+#include <string>
+using namespace std;
 
-class Matrix {
+
+class MatrixEncoder {
 private:
-    std::vector<int> data; 
-    int rows, cols; 
+    vector<vector<char>> matrix;  
+    string sentence; 
+    int rows;  
 
 public:
-    Matrix(int r, int c) : rows(r), cols(c) {
-        data.resize(rows * cols, 0); 
+    // Constructor
+    MatrixEncoder(const string& inputSentence, int numRows) : sentence(inputSentence), rows(numRows) {
+        createMatrix();
     }
-    void setValue(int r, int c, int value) {
-        if (r >= 0 && r < rows && c >= 0 && c < cols) {
-            data[r * cols + c] = value; 
-        } else {
-            std::cout << "Index out of bounds!" << std::endl;
+
+    // funkcia matric sarqelu
+    void createMatrix() {
+        int len = sentence.length();  
+        int cols = (len + rows - 1) / rows; 
+        matrix = vector<vector<char>>(rows, vector<char>(cols, ' ')); 
+        int index = 0;  
+        for (int j = 0; j < cols && index < len; ++j) {
+            for (int i = 0; i < rows && index < len; ++i) {
+                matrix[i][j] = sentence[index++];  
+                }
         }
     }
 
-    int getValue(int r, int c) {
-        if (r >= 0 && r < rows && c >= 0 && c < cols) {
-            return data[r * cols + c]; 
-        } else {
-            std::cout << "Index out of bounds!" << std::endl;
-            return -1; 
-        }
-    }
-    void display() {
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                std::cout << getValue(r, c) << " ";
+    //matricy cucadrelu funkcia
+    void displayMatrix() {
+        for (const vector<char>& row : matrix) {
+            for (char elem : row) {
+                cout << elem << " ";
             }
-            std::cout << std::endl;
+            cout << endl;  
         }
     }
 
-
-    std::string toString() {
-        std::ostringstream oss; 
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                oss << getValue(r, c) << " "; 
+   //matricov kodavorac naxadasutyun stanal
+    string encodeSentence() {
+        string encoded;  
+        for (const vector<char>& row : matrix) {
+            for (char elem : row) {
+                encoded += elem;  
             }
         }
-        return oss.str(); 
+        return encoded;  
     }
 };
 
 int main() {
-    int rows, cols;
-    std::cout << "Enter number of rows: ";
-    std::cin >> rows;
-    std::cout << "Enter number of columns: ";
-    std::cin >> cols;
+    string sentence;  
+    int rows;  
 
-    Matrix matrix(rows, cols);
+    cout << "Naxadasutyun: ";
+    getline(cin, sentence);
+    cout << "Enter i: ";
+    cin >> rows;
+    MatrixEncoder encoder(sentence, rows);
+    cout << "Matrix:"<<endl;
+    encoder.displayMatrix();
+    string encodedSentence = encoder.encodeSentence();
+    cout << "Kodavorvac naxadasutyun:" << encodedSentence << " " << endl;
 
-    for (int r = 0; r < rows; r++) {
-        for (int c = 0; c < cols; c++) {
-            int value;
-            std::cout << "Enter value for position (" << r << "," << c << "): ";
-            std::cin >> value;
-            matrix.setValue(r, c, value);
-        }
-    }
-    std::cout << "The matrix after updates is:" << std::endl;
-    matrix.display();
-
-    std::string matrixString = matrix.toString();
-    std::cout << "Matrix as string: " << matrixString << std::endl; 
-    return 0;
+    return 0;  
 }
