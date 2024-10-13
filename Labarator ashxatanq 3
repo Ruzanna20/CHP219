@@ -1,0 +1,114 @@
+#include <iostream>
+#include <cstring>
+#include <random>
+#include <algorithm> 
+
+using namespace std;
+
+
+class Crypto {
+public: 
+    virtual int Encrypt(const unsigned char* pSrc, unsigned int SrcSz, unsigned char* pOut, unsigned int& Outsz) = 0;
+    virtual int Decrypt(const unsigned char* pSrc, unsigned int SrcSz, unsigned char* pOut, unsigned int& Outsz) = 0;
+};
+
+//Class gaxtnagrman metodi hamar
+class Shablon : public Crypto {
+public:
+    Shablon(); 
+    ~Shablon(); 
+
+    // Override methods
+    int Encrypt(const unsigned char* pSrc, unsigned int SrcSz, unsigned char* pOut, unsigned int& Outsz) override;
+    int Decrypt(const unsigned char* pSrc, unsigned int SrcSz, unsigned char* pOut, unsigned int& Outsz) override;
+
+    void SetTemplateTable(); 
+
+private:
+    static const unsigned int TemplateSize = 256; 
+    unsigned char mEncryptTable[TemplateSize];
+    unsigned char mDecryptTable[TemplateSize]; 
+};
+
+Shablon::Shablon() {
+    SetTemplateTable(); 
+}
+
+Shablon::~Shablon() {}
+
+
+void Shablon::SetTemplateTable() {
+    for (unsigned int i = 0; i < TemplateSize; ++i) {
+        mEncryptTable[i] = i;
+        mDecryptTable[i] = i; 
+    }
+
+    // gaxtnagrman axyusaki popoxutyun
+    unsigned seed = std::random_device{}(); 
+    std::shuffle(mEncryptTable, mEncryptTable + TemplateSize, std::default_random_engine(seed));
+
+   //gaxtnagrman axyusaki himan vra Dekodavorman axyusak
+    for (unsigned int i = 0; i < TemplateSize; ++i) {
+        mDecryptTable[mEncryptTable[i]] = i; 
+    }
+}
+
+int Shablon::Encrypt(const unsigned char* pSrc, unsigned int SrcSz, unsigned char* pOut, unsigned int& Outsz) {
+    if (!pSrc || !pOut || SrcSz > Outsz) return -1; 
+    for (unsigned int i = 0; i < SrcSz; ++i) {
+        pOut[i] = mEncryptTable[pSrc[i]];
+    }
+    Outsz = SrcSz; 
+    return 0; 
+}
+
+
+int Shablon::Decrypt(const unsigned char* pSrc, unsigned int SrcSz, unsigned char* pOut, unsigned int& Outsz) {
+    if (!pSrc || !pOut || SrcSz > Outsz) return -1;
+    for (unsigned int i = 0; i < SrcSz; ++i) {
+        pOut[i] = mDecryptTable[pSrc[i]]; 
+    }
+    Outsz = SrcSz; 
+    return 0; 
+}
+
+//16-akani poxelu method
+void PrintHex(const unsigned char* data, unsigned int size) {
+    for (unsigned int i = 0; i < size; ++i) {
+        printf("%02X ", data[i]); 
+    }
+    printf("\n"); 
+}
+
+
+int main() {
+    string input;
+    cout << "Naxadasutyun: "; 
+    getline(cin, input);
+
+ 
+    unsigned char* src = reinterpret_cast<unsigned char*>(const_cast<char*>(input.c_str())); // Cast input to unsigned char*
+    unsigned char dest[1024]; 
+    unsigned char decrypt[1024]; 
+    unsigned int size = input.length(); 
+    unsigned int outSize; 
+
+    Shablon cipher; 
+
+
+    if (cipher.Encrypt(src, size, dest, outSize) != 0) {
+        cout << "Failed...\n";
+        return -1;
+    }
+    cout << "Kodavorvac text: "; 
+    PrintHex(dest, outSize);
+
+ 
+    if (cipher.Decrypt(dest, outSize, decrypt, outSize) != 0) {
+        cout << "Failed...\n"; 
+        return -2;
+    }
+    decrypt[outSize] = '\0'; 
+    cout << "Dekodavorvac text: " << decrypt << endl; 
+    return 0; 
+}
