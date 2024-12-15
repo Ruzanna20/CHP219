@@ -1,0 +1,101 @@
+import socket
+import threading
+
+class UDPSocket:
+    def __init__(self):
+        """Initialize the UDP socket."""
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.settimeout(10)
+
+    def __del__(self):
+        """Clean up the socket."""
+        self.sock.close()
+
+    def send_datagram(self, msg: bytes, address: tuple):
+        try:
+            bytes_sent = self.sock.sendto(msg, address)
+            return bytes_sent
+        except socket.timeout:
+            print("Error: Connection timed out.")
+            return -1
+        except Exception as e:
+            print(f"Error sending datagram: {e}")
+            return -1
+
+    def recv_datagram(self, bufsize: int):
+        try:
+            data, addr = self.sock.recvfrom(bufsize)
+            print(f"Data received: {data.decode()} from {addr}")
+            return data, addr
+        except socket.timeout:
+            print("Error: Timeout while waiting for a response.")
+            return None, None
+        except Exception as e:
+            print(f"Error receiving datagram: {e}")
+            return None, None
+
+
+
+class Client:
+    def __init__(self, server, port):
+        self.server_address = (server, port)
+        self.client_sock = UDPSocket()
+        self.bufsize = 1024
+
+    def send_message(self):
+        while True:
+            message = input("Enter message (or type 'exit' to quit): ").strip()
+            if not message:
+                print("Please enter a non-empty message.")
+                continue
+            if message.lower() == "exit":
+                print("Client shutting down.")
+                break
+
+            bytes_sent = self.client_sock.send_datagram(message.encode(), self.server_address)
+            if bytes_sent == -1:
+                print("Failed to send message.")
+                continue
+
+    def receive_message(self):
+        while True:
+            data, _ = self.client_sock.recv_datagram(self.bufsize)
+            if data:
+                print(f"Received from server: {data.decode()}")
+            else:
+                print("No response from server.")
+
+def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(0)
+    try:
+        s.connect(('10.254.254.254', 1))
+        ip = s.getsockname()[0]  
+    except Exception:
+        ip = '127.0.0.1' 
+    finally:
+        s.close()
+    return ip
+
+def get_available_port():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('0.0.0.0', 0)) 
+    port = s.getsockname()[1]  
+    s.close()
+    return port
+
+if __name__ == "__main__":
+    SERVER = get_local_ip()  
+    PORT = get_available_port()  
+    print(f"Server IP: {SERVER}, Port: {PORT}")
+
+    client = Client(SERVER, PORT)
+
+    send_thread = threading.Thread(target=client.send_message)
+    recv_thread = threading.Thread(target=client.receive_message)
+
+    send_thread.start()
+    recv_thread.start()
+
+    send_thread.join()
+    recv_thread.join()
